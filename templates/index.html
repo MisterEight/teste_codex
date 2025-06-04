@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Eye Color Predictor</title>
+</head>
+<body>
+    <h1>Predict Eye Color by Sport</h1>
+    <form id="sport-form">
+        <label for="sport">Sport:</label>
+        <input type="text" id="sport" name="sport" required>
+        <button type="submit">Predict</button>
+    </form>
+    <p id="result"></p>
+    <script>
+    const form = document.getElementById('sport-form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const sport = document.getElementById('sport').value;
+        const data = new URLSearchParams();
+        data.append('sport', sport);
+        const response = await fetch('/predict', {
+            method: 'POST',
+            body: data
+        });
+        const result = await response.json();
+        if (response.ok) {
+            document.getElementById('result').textContent = 'Predicted eye color: ' + result.eye_color;
+        } else {
+            document.getElementById('result').textContent = result.error;
+        }
+    });
+    </script>
+</body>
+</html>
+
