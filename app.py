@@ -28,14 +28,19 @@ def predict():
     if not sport:
         return jsonify({'error': 'sport is required'}), 400
 
-    sport_num = sport_enc.transform([sport])[0]
-    pred_num = model.predict([[sport_num]])[0]
-    eye_color = eye_enc.inverse_transform([pred_num])[0]
+    if sport not in sport_enc.classes_:
+        return jsonify({'error': 'sport not found'}), 400
 
-    df = pd.DataFrame([[sport, eye_color]], columns=['sport', 'predicted_eye_color'])
+    sport_num = sport_enc.transform([sport])[0]
+    proba = model.predict_proba([[sport_num]])[0]
+    pred_num = proba.argmax()
+    eye_color = eye_enc.inverse_transform([pred_num])[0]
+    probability = float(proba[pred_num])
+
+    df = pd.DataFrame([[sport, eye_color, probability]], columns=['sport', 'predicted_eye_color', 'probability'])
     df.to_csv(USER_DATA_PATH, mode='a', header=False, index=False)
 
-    return jsonify({'eye_color': eye_color})
+    return jsonify({'eye_color': eye_color, 'probability': probability})
 
 if __name__ == '__main__':
     app.run(debug=True)
